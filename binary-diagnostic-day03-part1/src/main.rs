@@ -1,10 +1,16 @@
 use std::io;
 
+// note: there's probably a simpler solution with lesser loops
+//     this is all I could come up with now
+
 fn main() {
     let stdin = io::stdin();
     let mut buf = String::new();
 
-    let mut num_bits = [0u32; 5];
+    // will store number of 1s in each position
+    // index 0 -> LSB
+    // index 31 -> MSB
+    let mut num_bits = [0u32; 32];
     let mut num_num = 0u32;
 
     loop {
@@ -16,34 +22,52 @@ fn main() {
             break;
         }
 
-        let num = u32::from_str_radix(input, 2).unwrap();
+        let mut num = u32::from_str_radix(input, 2).unwrap();
 
-        num_bits[0] += (num & 0b10000) >> 4;
-        num_bits[1] += (num & 0b01000) >> 3;
-        num_bits[2] += (num & 0b00100) >> 2;
-        num_bits[3] += (num & 0b00010) >> 1;
-        num_bits[4] += num & 0b00001;
+        let mut i = 0;
+        while num > 0 {
+            // increment if bit is 1
+            num_bits[i] += num & 1;
+
+            // move next bit to LSB
+            num >>= 1;
+
+            i += 1;
+        }
 
         num_num += 1;
 
         buf.clear();
     }
 
+    // to check if number of set bits is more than half
     num_num /= 2;
 
-    let γ = (((num_bits[0] > num_num) as u32) << 4)
-        | (((num_bits[1] > num_num) as u32) << 3)
-        | (((num_bits[2] > num_num) as u32) << 2)
-        | (((num_bits[3] > num_num) as u32) << 1)
-        | ((num_bits[4] > num_num) as u32);
-    // let ε = (((num_bits[0] < num_num) as u32) << 4)
-    //     | (((num_bits[1] < num_num) as u32) << 3)
-    //     | (((num_bits[2] < num_num) as u32) << 2)
-    //     | (((num_bits[3] < num_num) as u32) << 1)
-    //     | ((num_bits[4] < num_num) as u32);
-    let ε = !γ & 0b11111;
+    let mut γ = 0;
+    for i in (0..32).rev() {
+        // make space in LSB for new bit
+        γ <<= 1;
+        // set LSB if number of set bits in this position is more than majority
+        //   else leave it 0
+        γ |= (num_bits[i] > num_num) as u32;
+    }
 
-    // println!("{}, {}, {:?}, {}", γ, ε, num_bits, num_num);
+    // set everything after MSB of γ to 1s
+    // consider γ = 1000 0000 0000 0000 0000 0000 0000 0000
+    let mut mask = γ;
+    // γ becomes 1100 0000 0000 0000 0000 0000 0000 0000
+    mask |= mask >> 1;
+    // γ becomes 1111 0000 0000 0000 0000 0000 0000 0000
+    mask |= mask >> 2;
+    // γ becomes 1111 1111 0000 0000 0000 0000 0000 0000
+    mask |= mask >> 4;
+    // γ becomes 1111 1111 1111 1111 0000 0000 0000 0000
+    mask |= mask >> 8;
+    // γ becomes 1111 1111 1111 1111 1111 1111 1111 1111
+    mask |= mask >> 16;
+
+    // flip only those bits in γ which were set (everything after and including MSB)
+    let ε = !γ & mask;
 
     println!("{}", γ * ε);
 }
