@@ -1,2 +1,5 @@
 # AoC input files
 input
+
+# rust build files
+target/
