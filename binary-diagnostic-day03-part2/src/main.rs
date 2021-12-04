@@ -26,6 +26,24 @@ fn count_bits(nums: &Vec<u32>) -> [u32; 32] {
     num_bits
 }
 
+fn bit_criteria_calc(nums: &Vec<u32>, criteria: fn(u32, u32) -> bool) -> u32 {
+    let mut nums = nums.clone();
+    let num_bits_orig = count_bits(&nums);
+
+    for i in (0..32).rev().filter(|i| num_bits_orig[*i] > 0) {
+        let num_bits = count_bits(&nums);
+        let mask = (criteria(num_bits[i], (nums.len() as u32 + 1) / 2) as u32) << i;
+
+        nums = nums.into_iter().filter(|x| ((x ^ mask) & (1 << i)) == 0).collect();
+
+        if nums.len() == 1 {
+            break;
+        }
+    }
+
+    nums[0]
+}
+
 fn main() {
     let stdin = io::stdin();
     let mut buf = String::new();
@@ -47,30 +65,8 @@ fn main() {
         buf.clear();
     }
 
-    let mut nums2 = nums.clone();
-    let num_bits_orig = count_bits(&nums);
+    let oxygen = bit_criteria_calc(&nums, |num_bits, num_num| num_bits >= num_num);
+    let co2 = bit_criteria_calc(&nums, |num_bits, num_num| num_bits < num_num);
 
-    for i in (0..32).rev().filter(|i| num_bits_orig[*i] > 0) {
-        let num_bits = count_bits(&nums2);
-        let mask = ((num_bits[i] >= (nums2.len() as u32 + 1) / 2) as u32) << i;
-
-        nums2 = nums2.into_iter().filter(|x| ((x ^ mask) & (1 << i)) == 0).collect();
-
-        if nums2.len() == 1 {
-            break;
-        }
-    }
-
-    for i in (0..32).rev().filter(|i| num_bits_orig[*i] > 0) {
-        let num_bits = count_bits(&nums);
-        let mask = ((num_bits[i] < (nums.len() as u32 + 1) / 2) as u32) << i;
-
-        nums = nums.into_iter().filter(|x| ((x ^ mask) & (1 << i)) == 0).collect();
-
-        if nums.len() == 1 {
-            break;
-        }
-    }
-
-    println!("{}", nums2[0] * nums[0]);
+    println!("{}", oxygen * co2);
 }
