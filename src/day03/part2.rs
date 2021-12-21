@@ -1,4 +1,4 @@
-use std::io;
+use aoc::read_lines;
 
 // note: there's probably a simpler solution with lesser loops
 //     this is all I could come up with now
@@ -45,25 +45,12 @@ fn bit_criteria_calc(nums: &Vec<u32>, criteria: fn(u32, u32) -> bool) -> u32 {
 }
 
 fn main() {
-    let stdin = io::stdin();
-    let mut buf = String::new();
-
     let mut nums = Vec::<u32>::new();
 
-    loop {
-        stdin.read_line(&mut buf).unwrap();
-
-        let input = buf.trim();
-
-        if input == "" {
-            break;
-        }
-
-        let num = u32::from_str_radix(input, 2).unwrap();
+    read_lines("src/day03/input.in", |line| {
+        let num = u32::from_str_radix(line.as_str(), 2).unwrap();
         nums.push(num);
-
-        buf.clear();
-    }
+    }).unwrap();
 
     let oxygen = bit_criteria_calc(&nums, |num_bits, num_num| num_bits >= num_num);
     let co2 = bit_criteria_calc(&nums, |num_bits, num_num| num_bits < num_num);

@@ -1,28 +1,14 @@
-use std::io;
-
-// note: there's probably a simpler solution with lesser loops
-//     this is all I could come up with now
+use aoc::read_lines;
 
 fn main() {
-    let stdin = io::stdin();
-    let mut buf = String::new();
-
     // will store number of 1s in each position
     // index 0 -> LSB
     // index 31 -> MSB
     let mut num_bits = [0u32; 32];
     let mut num_num = 0u32;
 
-    loop {
-        stdin.read_line(&mut buf).unwrap();
-
-        let input = buf.trim();
-
-        if input == "" {
-            break;
-        }
-
-        let mut num = u32::from_str_radix(input, 2).unwrap();
+    read_lines("src/day03/input.in", |line| {
+        let mut num = u32::from_str_radix(line.as_str(), 2).unwrap();
 
         let mut i = 0;
         while num > 0 {
@@ -36,9 +22,7 @@ fn main() {
         }
 
         num_num += 1;
-
-        buf.clear();
-    }
+    }).unwrap();
 
     // to check if number of set bits is more than half
     num_num /= 2;

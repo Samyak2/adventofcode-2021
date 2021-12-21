@@ -1,5 +1,7 @@
-# AoC input files
-input
+# Added by cargo
 
-# rust build files
-target/
+/target
+
+# AoC input files
+
+*.in

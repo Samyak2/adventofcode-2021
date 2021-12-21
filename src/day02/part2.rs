@@ -1,23 +1,12 @@
-use std::io;
+use aoc::read_lines;
 
 fn main() {
-    let stdin = io::stdin();
-    let mut buf = String::new();
-
     let mut x = 0;
     let mut y = 0;
     let mut aim = 0;
 
-    loop {
-        stdin.read_line(&mut buf).unwrap();
-
-        let input = buf.trim();
-
-        if input == "" {
-            break;
-        }
-
-        let splits: Vec<&str> = input.splitn(2, " ").collect();
+    read_lines("src/day02/input.in", |line| {
+        let splits: Vec<&str> = line.splitn(2, " ").collect();
 
         let direction = splits[0];
         let mag = splits[1];
@@ -30,9 +19,7 @@ fn main() {
             "down" => { aim += mag },
             _ => {}
         }
-
-        buf.clear();
-    }
+    }).unwrap();
 
     println!("{}", x * y);
 }
