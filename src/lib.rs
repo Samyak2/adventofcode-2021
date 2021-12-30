@@ -1,6 +1,6 @@
 use std::{
     error::Error,
-    fs::File,
+    fs::{File, read_to_string},
     io::{BufRead, BufReader},
 };
 
@@ -16,4 +16,8 @@ where
         }
     });
     Ok(())
+}
+
+pub fn read_string(filename: &str) -> String {
+    read_to_string(filename).unwrap()
 }
