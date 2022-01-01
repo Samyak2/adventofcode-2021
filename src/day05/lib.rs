@@ -1,4 +1,4 @@
-use std::{ops::RangeInclusive, str::FromStr};
+use std::str::FromStr;
 
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Point {
@@ -42,16 +42,16 @@ impl FromStr for Line {
     }
 }
 
-fn get_range(start: usize, end: usize) -> RangeInclusive<usize> {
+fn get_range(start: usize, end: usize) -> Box<dyn Iterator<Item = usize>> {
     if end > start {
-        start..=end
+        Box::new(start..=end)
     } else {
-        end..=start
+        Box::new((end..=start).rev())
     }
 }
 
 impl Line {
-    pub fn get_points(&self) -> Option<Vec<Point>> {
+    pub fn get_points_straight(&self) -> Option<Vec<Point>> {
         if !self.is_straight() {
             return None;
         }
@@ -71,8 +71,18 @@ impl Line {
         }
     }
 
+    pub fn get_points_all(&self) -> Vec<Point> {
+        if let Some(points) = self.get_points_straight() {
+            return points;
+        }
+
+        get_range(self.start.x, self.end.x)
+            .zip(get_range(self.start.y, self.end.y))
+            .map(|(x, y)| Point { x, y })
+            .collect()
+    }
+
     pub fn is_straight(&self) -> bool {
         self.start.x == self.end.x || self.start.y == self.end.y
     }
 }
-

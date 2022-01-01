@@ -20,10 +20,9 @@ fn main() {
 
     lines
         .into_iter()
-        .filter(Line::is_straight)
         .for_each(|line| {
-            line.get_points_straight().unwrap().into_iter().for_each(|point| {
-                // println!("x: {}, y: {}, collisions: {}", point.x, point.y, collisions);
+            line.get_points_all().into_iter().for_each(|point| {
+                // println!("x: {}, y: {}", point.x, point.y);
                 *map.entry(point).or_insert(0) += 1;
             })
         });
